@@ -1,5 +1,6 @@
 package com.zmm.zcorekv.lsm;
 
+import com.zmm.zcorekv.api.DBIterator;
 import com.zmm.zcorekv.utils.Entry;
 
 /**
@@ -28,7 +29,15 @@ public abstract class MemTable {
         return false;
     }
 
-    public void close() {}
+    public long size() {
+        return 0;
+    }
+
+    public DBIterator iterator() {
+        return null;
+    }
 
     public void recovery() {}
+
+    public void close() {}
 }

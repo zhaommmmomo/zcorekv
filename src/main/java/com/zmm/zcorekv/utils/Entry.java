@@ -33,6 +33,10 @@ public class Entry {
         this.valThreshold = valThreshold;
     }
 
+    public long size() {
+        return key.length + value.length;
+    }
+
     public Entry setKey(byte[] key) {
         this.key = key;
         return this;

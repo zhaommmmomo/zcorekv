@@ -1,5 +1,6 @@
 package com.zmm.zcorekv.lsm;
 
+import com.zmm.zcorekv.api.DBIterator;
 import com.zmm.zcorekv.utils.Const;
 import com.zmm.zcorekv.utils.Entry;
 import com.zmm.zcorekv.utils.Rand;
@@ -24,6 +25,8 @@ public class SkipList extends MemTable {
     private int length = 0;
     private final Lock lock = new ReentrantLock();
     private long size;
+
+    private final SkipListIter iterator = new SkipListIter();
 
     @Override
     public void init(LSMOptions options) {
@@ -61,6 +64,7 @@ public class SkipList extends MemTable {
                         break;
                     } else if (flag == 0) {
                         // 相同，直接修改并返回
+                        size += entry.size() - next.entry.size();
                         next.entry = entry;
                         return true;
                     }
@@ -78,8 +82,9 @@ public class SkipList extends MemTable {
             Node newNode = new Node(entry, score);
             // 获取新节点层数
             int cLevel = randLevel();
+            int minLevel = Math.min(cLevel, level);
             // 添加节点
-            for (int i = 0; i < Math.min(cLevel, level); i++) {
+            for (int i = 0; i < minLevel; i++) {
                 Node swap = preNode[i].levels.get(i);
                 preNode[i].levels.set(i, newNode);
                 newNode.addLevel(swap);
@@ -92,6 +97,7 @@ public class SkipList extends MemTable {
                 level++;
             }
             length++;
+            size += entry.size();
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -129,16 +135,26 @@ public class SkipList extends MemTable {
 
     @Override
     public boolean del(byte[] key) {
-        return set(new Entry(key, null));
+        return set(new Entry(key, "".getBytes()));
     }
 
     @Override
-    public void close() {
+    public long size() {
+        return size;
+    }
 
+    @Override
+    public DBIterator iterator() {
+        return iterator;
     }
 
     @Override
     public void recovery() {
+
+    }
+
+    @Override
+    public void close() {
 
     }
 
@@ -220,7 +236,7 @@ public class SkipList extends MemTable {
     }
 
     class Node {
-        private List<Node> levels = new ArrayList<>();
+        private final List<Node> levels = new ArrayList<>();
         private Entry entry;
         private float score;
 
@@ -235,28 +251,48 @@ public class SkipList extends MemTable {
             levels.add(node);
         }
 
-        public List<Node> getLevels() {
-            return levels;
-        }
-
-        public void setLevels(List<Node> levels) {
-            this.levels = levels;
-        }
-
         public Entry getEntry() {
             return entry;
         }
+    }
 
-        public void setEntry(Entry entry) {
-            this.entry = entry;
+    class SkipListIter implements DBIterator {
+
+        private Node node;
+
+        public SkipListIter() {
+            node = header.levels.get(0);
         }
 
-        public float getScore() {
-            return score;
+        @Override
+        public byte[] next() {
+            lock.lock();
+            try {
+                if (node != null) {
+                    node = node.levels.get(0);
+                    return node.entry.value;
+                }
+                return null;
+            } catch (Exception e) {
+                throw new RuntimeException();
+            } finally {
+                lock.unlock();
+            }
         }
 
-        public void setScore(float score) {
-            this.score = score;
+        @Override
+        public boolean valid() {
+            return node != null;
+        }
+
+        @Override
+        public void rewind() {
+            node = header.levels.get(0);
+        }
+
+        @Override
+        public void close() {
+
         }
     }
 

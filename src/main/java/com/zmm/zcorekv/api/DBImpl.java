@@ -2,7 +2,6 @@ package com.zmm.zcorekv.api;
 
 import com.zmm.zcorekv.lsm.LSM;
 import com.zmm.zcorekv.lsm.LSMOptions;
-import com.zmm.zcorekv.lsm.Merge;
 import com.zmm.zcorekv.utils.Entry;
 import com.zmm.zcorekv.valuelog.ValueLog;
 
@@ -16,7 +15,7 @@ import static java.util.Objects.requireNonNull;
 public class DBImpl implements DB{
 
     /** 工作目录，默认会在 工作目录下的/db */
-    private final File dbDir;
+    private String dbDir = System.getProperty("user.dir") + "\\db";
 
     /** 一些配置 */
     private final DBOptions options;
@@ -32,11 +31,18 @@ public class DBImpl implements DB{
     /** 一些状态信息 */
     private Stats stats;
 
-    public DBImpl(DBOptions options, File dbDir) {
+    public DBImpl(DBOptions options) {
         requireNonNull(options, "options is null");
         this.options = options;
-        this.dbDir = dbDir != null ? dbDir :
-                new File(System.getProperty("user.dir") + "\\db");
+        init();
+    }
+
+    public DBImpl(DBOptions options, String dbDir) {
+        requireNonNull(options, "options is null");
+        this.options = options;
+        if (dbDir != null && dbDir.length() > 0) {
+            this.dbDir = dbDir;
+        }
         init();
     }
 
@@ -48,40 +54,41 @@ public class DBImpl implements DB{
         lsm = new LSM(new LSMOptions().setDBDir(dbDir));
 
         // 初始化vlog
+        valueLog = new ValueLog();
 
         // 初始化统计信息
-
-        // 启动sst压缩合并
-        Merge.start();
-
-        // 启动value gc
-
-        // 启动stats统计
+        stats = new Stats();
     }
 
     @Override
     public boolean set(byte[] key, byte[] value) {
+        // 检测value是否大于某个阈值
+        // 如果大于，写入ValueLog
+        // 否则正常写入
+
+        // 写WAL
+
         return lsm.set(new Entry().setKey(key).setValue(value));
     }
 
     @Override
     public byte[] get(byte[] key) {
-        return null;
+        return lsm.get(key);
     }
 
     @Override
     public boolean del(byte[] key) {
-        return false;
+        return lsm.del(key);
     }
 
     @Override
     public DBIterator newIterator() {
-        return null;
+        return lsm.iterator();
     }
 
     @Override
     public Stats info() {
-        return null;
+        return stats;
     }
 
     @Override

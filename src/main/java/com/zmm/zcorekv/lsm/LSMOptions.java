@@ -2,7 +2,6 @@ package com.zmm.zcorekv.lsm;
 
 import com.zmm.zcorekv.utils.Const;
 
-import java.io.File;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -12,14 +11,14 @@ import static java.util.Objects.requireNonNull;
 public class LSMOptions {
 
     /** 存储目录 */
-    public File dbDir;
+    public String dbDir;
     /** 内存表大小 */
     public long memTableSize = 1024;
     /** sst最大值 */
     public long sstableMaxSize = 1 << 30;
     /** 块大小 */
     public int blockSize = 4 * 1024;
-    /** 布隆过滤器错误概率 */
+    /** 布隆过滤器假阳性 */
     public float bloomFalsePositive;
 
     /** SkipList最大层数 */
@@ -29,7 +28,7 @@ public class LSMOptions {
 
     }
 
-    public LSMOptions setDBDir(File dbDir) {
+    public LSMOptions setDBDir(String dbDir) {
         requireNonNull(dbDir, "dbDir is null");
         this.dbDir = dbDir;
         return this;

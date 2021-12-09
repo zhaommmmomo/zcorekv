@@ -15,4 +15,13 @@ public class Cache {
 
     /** 块数据 */
     private Map<byte[], Integer> block = new ConcurrentHashMap<>();
+
+    /**
+     * 从磁盘中加载指定key
+     * @param key       key
+     * @return          value
+     */
+    public byte[] get(byte[] key) {
+        return null;
+    }
 }
