@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SkipList extends MemTable {
 
-    private Node header = new Node();
+    private final Node header = new Node();
 
     /** SkipList最大高度 */
     private int maxLevel = Const.MAX_SKIP_LIST_LEVEL;
@@ -25,8 +25,6 @@ public class SkipList extends MemTable {
     private int length = 0;
     private final Lock lock = new ReentrantLock();
     private long size;
-
-    private final SkipListIter iterator = new SkipListIter();
 
     @Override
     public void init(LSMOptions options) {
@@ -145,7 +143,7 @@ public class SkipList extends MemTable {
 
     @Override
     public DBIterator iterator() {
-        return iterator;
+        return new SkipListIter();
     }
 
     @Override

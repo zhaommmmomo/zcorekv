@@ -57,12 +57,13 @@ public class LevelManager {
         String filename = options.dbDir + fId.getAndIncrement() + ".sst";
 
         // 构建SST文件
-        Table table = new Table(filename, memTable, options);
+//        Table table = new Table(filename, memTable, options);
+        SSTable ssTable = new SSTable(filename, memTable, options);
 
         // 更新levelHandle和manifest
 
         // 添加异步flash任务
-        flusher.addTask(null);
+        flusher.addTask(ssTable);
     }
 
 }

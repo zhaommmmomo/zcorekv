@@ -12,8 +12,6 @@ public class Table {
 
     private final LSMOptions options;
 
-    private final Builder builder = new Builder();
-
     public Table(String filename, MemTable memTable, LSMOptions options) {
         this.filename = filename;
         this.memTable = memTable;
@@ -22,13 +20,7 @@ public class Table {
     }
 
     private void init() {
-        builder.flushSST();
+
     }
 
-    class Builder {
-
-        private void flushSST() {
-
-        }
-    }
 }

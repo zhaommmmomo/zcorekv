@@ -12,17 +12,16 @@ import java.util.function.Consumer;
  */
 public class Flush implements Runnable{
 
+    /** flush task queue */
     private final List<SSTable> queue = new CopyOnWriteArrayList<>();
 
     @Override
     public void run() {
         try {
             while (queue.size() != 0) {
-                queue.forEach(new Consumer<SSTable>() {
-                    @Override
-                    public void accept(SSTable ssTable) {
-                        // 执行刷盘逻辑
-                    }
+                queue.forEach(ssTable -> {
+                    // 执行刷盘逻辑
+
                 });
             }
         } catch (Exception e) {

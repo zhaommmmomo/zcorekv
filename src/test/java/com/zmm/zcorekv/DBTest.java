@@ -24,9 +24,9 @@ public class DBTest {
             assert Arrays.equals("corekv".getBytes(), db.get("hello".getBytes()));
             DBIterator iterator = db.newIterator();
 
-            //for (iterator.rewind(); iterator.valid();) {
-            //    System.out.println(new String(iterator.next()));
-            //}
+            // for (iterator.rewind(); iterator.valid();) {
+            //     System.out.println(new String(iterator.next()));
+            // }
             //iterator.close();
             assert db.del("hello".getBytes());
         } catch (Exception e) {

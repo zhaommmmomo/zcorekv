@@ -3,4 +3,37 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "com.zmm.zcorekv.pb";
 
-message
+// block
+message Block {
+  int32 checkSumLen = 1;
+  int32 checkSum = 2;
+  int32 offsetLen = 3;
+  int32 offsets = 4;
+  repeated Data kvData = 5;
+}
+
+// kv data
+message Data {
+  bytes key = 1;
+  bytes value = 2;
+  int64 expires = 3;
+  uint64 version = 4;
+}
+
+// data's index
+message IndexData {
+  repeated BlockOffset blockOffsets = 1;
+  bytes bloomFilter = 2;
+  uint64 maxVersion = 3;
+  uint32 keyCount = 4;
+}
+
+// blockOffset
+message BlockOffset {
+  // the first key in block
+  bytes key = 1;
+  // the block's offset
+  uint32 offset = 2;
+  // the block's len
+  uint32 len = 3;
+}
